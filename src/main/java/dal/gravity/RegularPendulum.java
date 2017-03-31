@@ -8,30 +8,32 @@ public class RegularPendulum extends AbstractPendulum {
     private double delta, iterations = 0;
     private double dissipation;
     private double lastTheta, lastVel, lastAccel;
+    private GravityModel g;
 
     /**
      * Creates a new Pendulum instance 
      */
     public RegularPendulum (double inLength, double inMass, double inTheta0,
-		     double inDelta, double inDiss) {
-	super (inLength, inMass, inTheta0, GRAVITY);
+		     double inDelta, double inDiss, GravityModel inG) {
+	super (inLength, inMass, inTheta0, inG.getGravitationalField());
 	delta = inDelta;
 	dissipation = inDiss;
 	lastVel = 0;
-	lastTheta = this.getMaxAngularDisplacement ();
-	lastAccel = -(this.getGravitationalField () / this.getStringLength ())*Math.sin (lastTheta);
+	lastTheta = this.getMaxAngularDisplacement();
+	g = inG;
+	lastAccel = -(g.getGravitationalField () / this.getStringLength ())*Math.sin (lastTheta);
     }
 
     public RegularPendulum (double inLength, double inMass, double inTheta0,
-		     double inDelta) {
-	this (inLength, inMass, inTheta0, inDelta, 0);
+		     double inDelta, GravityModel inG) {
+	this (inLength, inMass, inTheta0, inDelta, 0, inG);
     }
 
     public void step () {
 	iterations++;
 	lastTheta = lastTheta + lastVel*delta;
 	lastVel = lastVel + lastAccel*delta;
-	lastAccel = - dissipation*lastVel - this.getGravitationalField () / this.getStringLength () * Math.sin (lastTheta);
+	lastAccel = - dissipation*lastVel - g.getGravitationalField () / this.getStringLength () * Math.sin (lastTheta);
     }
 
     public double getLastTheta () { return lastTheta; }
@@ -40,5 +42,6 @@ public class RegularPendulum extends AbstractPendulum {
     public double getLastTime () { return iterations*delta; }
     public double getDissipationConstant () { return dissipation; }
     
+    public void setGravityModel (GravityModel g) {this.g = g;}
 
 }
